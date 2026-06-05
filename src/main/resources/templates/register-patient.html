@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Signup | MediSlot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <h1>Patient Signup</h1>
+    <div class="alert danger" th:if="${error}" th:text="${error}"></div>
+    <form th:action="@{/register/patient}" method="post" class="form">
+        <label>Name</label><input name="name" required minlength="2">
+        <label>Email</label><input type="email" name="email" required>
+        <label>Phone</label><input name="phone" required>
+        <label>City</label><input name="city" required>
+        <label>Password</label><input type="password" name="password" required minlength="6">
+        <button class="button primary" type="submit">Create Patient Account</button>
+    </form>
+    <p class="switch-link"><a th:href="@{/login}">Back to login</a></p>
+</main>
+</body>
+</html>

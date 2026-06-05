@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Admin Dashboard')}"></head>
+<body class="cyber-page">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <main class="container" style="max-width: 1200px;">
+        <div class="cyber-panel">
+            <!-- Inner Header / Nav -->
+            <div class="cyber-header">
+                <div class="cyber-brand">
+                    <img th:src="@{/images/medislot-logo.png}" alt="MediSlot Logo" style="height: 100px; mix-blend-mode: screen; object-fit: contain;">
+                </div>
+                <div class="cyber-nav" style="display: flex; align-items: center; gap: 15px;">
+                    <a th:href="@{/admin/doctors}" class="cyber-nav-btn">Doctors</a>
+                    <a th:href="@{/admin/users}" class="cyber-nav-btn">Users</a>
+                    <a th:href="@{/admin/specializations}" class="cyber-nav-btn">Specializations</a>
+                    <a th:href="@{/admin/appointments}" class="cyber-nav-btn">Appointments</a>
+                    
+                    <!-- Alert Center -->
+                    <div class="alert-center" style="position: relative; cursor: pointer; margin: 0 15px;">
+                        <i class="fa-solid fa-bell" style="font-size: 1.3rem; color: #94a3b8; transition: color 0.3s ease;"></i>
+                        <span th:if="${pendingDoctors > 0}" class="pulse-indicator"></span>
+                    </div>
+
+                    <a th:href="@{/logout}" class="cyber-nav-btn">Logout</a>
+                </div>
+            </div>
+
+            <div class="welcome-header">
+                <h1>Dashboard Overview</h1>
+            </div>
+
+            <!-- Dashboard Widgets -->
+            <section class="stats-grid" style="margin-bottom: 30px;">
+                <article class="stat-card cyber-widget">
+                    <div class="widget-header">
+                        <span style="color: #0ea5e9;">Total Signups</span>
+                        <span class="growth-indicator"><i class="fa-solid fa-arrow-trend-up"></i> +12%</span>
+                    </div>
+                    <strong th:text="${users}" style="color: white; font-size: 2.5rem; margin-top: 10px; display: block;">0</strong>
+                </article>
+                
+                <article class="stat-card cyber-widget" th:classappend="${pendingDoctors > 0 ? 'amber-alert' : ''}">
+                    <div class="widget-header">
+                        <span th:style="${pendingDoctors > 0 ? 'color: #f59e0b;' : 'color: #0ea5e9;'}">Pending Verification</span>
+                        <i class="fa-solid fa-user-clock" style="color: rgba(255,255,255,0.3); font-size: 1.5rem;"></i>
+                    </div>
+                    <strong th:text="${pendingDoctors}" style="color: white; font-size: 2.5rem; margin-top: 10px; display: block;">0</strong>
+                </article>
+                
+                <article class="stat-card cyber-widget">
+                    <div class="widget-header">
+                        <span style="color: #0ea5e9;">System Health</span>
+                        <i class="fa-solid fa-server" style="color: rgba(255,255,255,0.3); font-size: 1.5rem;"></i>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
+                        <div class="health-dot"></div>
+                        <strong style="color: white; font-size: 1.2rem;">Operational</strong>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Visual Analytics Charts -->
+            <section class="charts-section" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                <div class="cyber-chart-card">
+                    <h3>New Registrations</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div class="cyber-chart-card">
+                    <h3>User Distribution</h3>
+                    <div style="height: 150px; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+                <div class="cyber-chart-card">
+                    <h3>Peak Appointments</h3>
+                    <canvas id="heatmapChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Activity Logs & Recent Appointments -->
+            <section style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px;">
+                <!-- Recent Appointments Table -->
+                <div class="cyber-table-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 15px;">
+                        <h2 style="margin: 0; font-size: 1.2rem;">Recent Appointments</h2>
+                        <a th:href="@{/admin/appointments}" style="color: cyan; text-decoration: none; font-size: 0.9rem;">View all</a>
+                    </div>
+                    
+                    <div class="cyber-table-header">
+                        <div style="flex: 2;">PATIENT</div>
+                        <div style="flex: 2;">DOCTOR</div>
+                        <div style="flex: 2;">SLOT</div>
+                        <div style="flex: 1;">STATUS</div>
+                    </div>
+
+                    <div class="cyber-row" th:each="a : ${recentAppointments}">
+                        <div style="flex: 2;">
+                            <strong th:text="${a.patient.name}" style="color: inherit;"></strong>
+                        </div>
+                        <div style="flex: 2;" th:text="${a.doctor.name}"></div>
+                        <div style="flex: 2;">
+                            <span th:text="${a.slot.slotDate + ' ' + a.slot.startTime}" style="color: #94a3b8; font-size: 0.9rem;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <span class="cyber-badge" th:classappend="${a.status.name().toLowerCase()}" th:text="${a.status}"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Activity Log -->
+                <div class="cyber-table-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 15px;">
+                        <h2 style="margin: 0; font-size: 1.2rem;">System Activity</h2>
+                        <i class="fa-solid fa-list-check" style="color: #64748b;"></i>
+                    </div>
+                    
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+                            <div class="activity-content">
+                                <p>Dr. Arjun Mehta was approved by Admin</p>
+                                <small>10:45 AM</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fa-solid fa-user-plus" style="color: #3b82f6;"></i>
+                            <div class="activity-content">
+                                <p>New patient registered: Sarah Jenkins</p>
+                                <small>09:12 AM</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fa-solid fa-calendar-check" style="color: #8b5cf6;"></i>
+                            <div class="activity-content">
+                                <p>Appointment #1024 completed</p>
+                                <small>Yesterday, 4:30 PM</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fa-solid fa-shield-halved" style="color: #f59e0b;"></i>
+                            <div class="activity-content">
+                                <p>System backup completed successfully</p>
+                                <small>Yesterday, 2:00 AM</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Visual Analytics Charts
+        document.addEventListener("DOMContentLoaded", () => {
+            // Trend Line Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Registrations',
+                        data: [12, 19, 15, 32],
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            // Distribution Doughnut Chart
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Patients', 'Doctors'],
+                    datasets: [{
+                        data: [75, 25],
+                        backgroundColor: ['#3b82f6', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#e2e8f0', usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+
+            // Heatmap / Peak Bar Chart
+            const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
+            new Chart(heatmapCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    datasets: [{
+                        label: 'Appointments',
+                        data: [20, 35, 25, 45, 15, 10],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Doctor Verification')}"></head>
+<body class="cyber-page">
+
+    <main class="container" style="max-width: 1200px;">
+        
+        <div class="cyber-panel">
+            <!-- Inner Header / Nav -->
+            <div class="cyber-header">
+                <div class="cyber-brand">
+                    <img th:src="@{/images/medislot-logo.png}" alt="MediSlot Logo" style="height: 100px; mix-blend-mode: screen; object-fit: contain;">
+                </div>
+                <div class="cyber-nav">
+                    <a th:href="@{/admin/doctors}" class="cyber-nav-btn active">Doctors</a>
+                    <a th:href="@{/admin/users}" class="cyber-nav-btn">Users</a>
+                    <a th:href="@{/admin/specializations}" class="cyber-nav-btn">Specializations</a>
+                    <a th:href="@{/admin/appointments}" class="cyber-nav-btn">Appointments</a>
+                    <a th:href="@{/logout}" class="cyber-nav-btn">Logout</a>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div class="alert success" th:if="${param.approved}" style="margin: 0 25px 15px 25px;"><i class="fa-solid fa-circle-check"></i> Doctor approved successfully.</div>
+            <div class="alert danger" th:if="${param.rejected}" style="margin: 0 25px 15px 25px;"><i class="fa-solid fa-circle-exclamation"></i> Doctor rejected.</div>
+            <div class="alert warning" th:if="${param.suspended}" style="margin: 0 25px 15px 25px;"><i class="fa-solid fa-triangle-exclamation"></i> Doctor suspended.</div>
+
+            <!-- Table Container -->
+            <div class="cyber-table-container">
+                <!-- Header Row -->
+                <div class="cyber-table-header">
+                    <div class="col-name" style="padding-left: 70px;">NAME</div>
+                    <div class="col-reg">REG NO</div>
+                    <div class="col-spec">SPECIALIZATION</div>
+                    <div class="col-clinic">CLINIC</div>
+                    <div class="col-fee">FEE</div>
+                    <div class="col-status">STATUS</div>
+                    <div class="col-action">ACTION</div>
+                </div>
+
+                <!-- Data Rows -->
+                <div class="cyber-row" th:each="d : ${doctors}">
+                    <div class="col-name name-col-flex">
+                        <div class="cyber-avatar">
+                            <img th:src="@{'https://ui-avatars.com/api/?name=' + ${d.user.name} + '&background=random&color=fff'}" alt="Avatar">
+                        </div>
+                        <div class="name-details">
+                            <strong th:text="${d.user.name}"></strong>
+                            <span class="muted-cyber" th:text="${d.user.email}"></span>
+                        </div>
+                    </div>
+                    <div class="col-reg" th:text="${d.registrationNumber}"></div>
+                    <div class="col-spec" th:text="${d.specialization.name}"></div>
+                    <div class="col-clinic">
+                        <span th:text="${d.clinicName}"></span><br>
+                        <span class="muted-cyber" th:text="${d.city}"></span>
+                    </div>
+                    <div class="col-fee" th:text="${d.consultationFee}"></div>
+                    <div class="col-status">
+                        <span class="cyber-badge" th:classappend="${d.verificationStatus.name().toLowerCase()}" th:text="${d.verificationStatus}"></span>
+                    </div>
+                    <div class="col-action">
+                        <!-- Pending or Rejected or Suspended -> Can Approve -->
+                        <div th:if="${d.verificationStatus.name() == 'PENDING_VERIFICATION' || d.verificationStatus.name() == 'REJECTED' || d.verificationStatus.name() == 'SUSPENDED'}">
+                            <form class="action-form" th:action="@{/admin/doctors/{id}/approve(id=${d.id})}" method="post">
+                                <input name="remark" placeholder="Reason for..." class="cyber-input">
+                                <button class="cyber-btn cyber-btn-green">Approve</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Pending -> Can Reject -->
+                        <div th:if="${d.verificationStatus.name() == 'PENDING_VERIFICATION'}">
+                            <form class="action-form mt-1" th:action="@{/admin/doctors/{id}/reject(id=${d.id})}" method="post">
+                                <input name="remark" placeholder="Reason" class="cyber-input">
+                                <button class="cyber-btn cyber-btn-red">Reject</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Approved -> Can Suspend -->
+                        <div th:if="${d.verificationStatus.name() == 'APPROVED'}">
+                            <form class="action-form" th:action="@{/admin/doctors/{id}/suspend(id=${d.id})}" method="post">
+                                <input name="remark" placeholder="Reason for" class="cyber-input">
+                                <button class="cyber-btn cyber-btn-orange">Suspend</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

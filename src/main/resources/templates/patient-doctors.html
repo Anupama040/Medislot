@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Find Doctors')}"></head>
+<body class="dashboard-page">
+
+    <!-- Decorative background patterns -->
+    <div class="bg-pattern-icons dash-pattern">
+        <i class="fa-solid fa-heart" style="top: 10%; left: 5%;"></i>
+        <i class="fa-solid fa-stethoscope" style="top: 20%; right: 10%;"></i>
+        <i class="fa-solid fa-notes-medical" style="bottom: 30%; left: 8%;"></i>
+        <i class="fa-solid fa-pills" style="bottom: 10%; right: 15%;"></i>
+        <i class="fa-solid fa-kit-medical" style="top: 50%; left: 90%;"></i>
+    </div>
+
+    <nav th:replace="~{fragments :: nav('MediSlot')}"></nav>
+
+    <main class="container">
+        
+        <!-- Header Area: Smart AI Search Card -->
+        <section class="ai-search-card">
+            <div class="ai-header">
+                <div class="ai-icon"><i class="fa-solid fa-robot"></i></div>
+                <h2>Smart AI Symptom Search</h2>
+            </div>
+            <p class="tagline muted">Not sure which doctor to see? Tell us your symptoms and our AI will find the right specialist for you!</p>
+            <form th:action="@{/patient/ai-search}" method="post" class="ai-form">
+                <input type="text" name="symptoms" placeholder="E.g., I have a severe headache and blurry vision..." required class="pill-input">
+                <button type="submit" class="button success pill-btn ai-btn">Ask AI</button>
+            </form>
+        </section>
+        
+        <div class="alert success" th:if="${param.aiMatched}">
+            <i class="fa-solid fa-circle-check"></i> AI Analysis Complete! We recommend a <strong th:text="${param.aiMatched}"></strong> for your symptoms.
+        </div>
+        <div class="alert danger" th:if="${param.aiFailed}">
+            <i class="fa-solid fa-circle-exclamation"></i> Sorry, our AI couldn't match your symptoms with an available specialization. Please search manually.
+        </div>
+
+        <hr class="subtle-divider">
+
+        <!-- Manual Search Area -->
+        <div class="section-header">
+            <h3>Manual Search & Filters</h3>
+        </div>
+        <section class="modern-card filter-card">
+            <form th:action="@{/patient/doctors}" method="get" class="filter-form">
+                <div class="select-wrapper">
+                    <select name="specializationId" class="pill-input">
+                        <option value="">All specializations</option>
+                        <option th:each="s : ${specializations}" th:value="${s.id}" th:text="${s.name}" th:selected="${selectedSpecialization == s.id}"></option>
+                    </select>
+                </div>
+                <input type="text" name="city" placeholder="City" th:value="${city}" class="pill-input">
+                <button type="submit" class="button primary pill-btn search-btn">Search</button>
+            </form>
+        </section>
+
+        <hr class="subtle-divider">
+
+        <!-- Doctor Grid Area -->
+        <div class="section-header">
+            <h3>Available Doctors</h3>
+        </div>
+        <section class="modern-doctor-grid two-cols" id="doctor-grid">
+            <!-- Empty State -->
+            <div th:if="${doctors == null or doctors.empty}" class="empty-state-card" style="grid-column: 1 / -1; text-align: center; padding: 50px; background: rgba(255,255,255,0.8); border-radius: 16px; border: 1px dashed #cbd5e1;">
+                <i class="fa-solid fa-user-doctor" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 15px;"></i>
+                <h3 style="color: #475569; margin-bottom: 10px;">No doctors found matching your criteria.</h3>
+                <p class="muted">Try adjusting your filters, searching in a nearby city, or viewing all specializations.</p>
+                <a th:href="@{/patient/doctors}" class="button outline pill-btn" style="margin-top: 15px; display: inline-block;">Clear Filters</a>
+            </div>
+
+            <!-- Doctor Cards -->
+            <article class="modern-doctor-card" th:each="d : ${doctors}" style="position: relative;">
+                <div class="doc-header-row">
+                    <div class="doc-avatar-col">
+                        <div class="doc-avatar-img"><i class="fa-solid fa-user-doctor"></i></div>
+                    </div>
+                    <div class="doc-info-col">
+                        <h3 class="doc-name">
+                            <span th:text="${d.user.name}"></span>
+                            <span class="verified-tick" title="Verified Medical Professional"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                        </h3>
+                        <p class="doc-spec" th:text="${d.specialization.name + ' | ' + d.qualification}"></p>
+                        <p class="doc-clinic"><i class="fa-solid fa-location-dot" style="color: #64748b; width: 15px;"></i> <span th:text="${d.clinicName + ', ' + d.city}"></span></p>
+                    </div>
+                </div>
+                
+                <div class="doc-desc">
+                    <p th:if="${d.bio != null and !d.bio.isEmpty()}" th:text="${#strings.abbreviate(d.bio, 100)}"></p>
+                    <p th:unless="${d.bio != null and !d.bio.isEmpty()}" class="muted">Experienced specialist committed to providing the highest quality of patient care.</p>
+                </div>
+
+                <div class="doc-footer">
+                    <div class="doc-stats" style="display: flex; gap: 15px;">
+                        <p title="Years of Experience"><i class="fa-solid fa-award" style="color: #0d9488;"></i> <strong>Exp:</strong> 10+ Yrs</p>
+                        <p title="Consultation Fee"><i class="fa-solid fa-wallet" style="color: #0d9488;"></i> <strong>Fee:</strong> Rs. <span th:text="${d.consultationFee}"></span></p>
+                    </div>
+                    <a class="button view-availability-btn" th:href="@{/patient/doctors/{id}/slots(id=${d.user.id})}">View Availability</a>
+                </div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

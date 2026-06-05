@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Doctor Appointments')}"></head>
+<body class="dashboard-page">
+
+    <!-- Decorative background patterns -->
+    <div class="bg-pattern-icons dash-pattern">
+        <i class="fa-solid fa-heart" style="top: 10%; left: 5%;"></i>
+        <i class="fa-solid fa-stethoscope" style="top: 20%; right: 10%;"></i>
+        <i class="fa-solid fa-notes-medical" style="bottom: 30%; left: 8%;"></i>
+        <i class="fa-solid fa-pills" style="bottom: 10%; right: 15%;"></i>
+        <i class="fa-solid fa-kit-medical" style="top: 50%; left: 90%;"></i>
+    </div>
+
+    <nav th:replace="~{fragments :: nav('Doctor Panel')}"></nav>
+    
+    <main class="container" style="max-width: 1100px; padding-top: 30px;">
+        <div class="welcome-header" style="margin-bottom: 30px;">
+            <h1 style="color: #1e3a8a; margin: 0 0 5px 0;">Upcoming Appointments</h1>
+            <p class="tagline muted" style="margin: 0;">Manage your schedule and patient prescriptions.</p>
+        </div>
+
+        <p th:if="${#lists.isEmpty(appointments)}" class="muted" style="text-align: center; padding: 40px; border: 1px dashed #cbd5e1; border-radius: 16px; background: rgba(255,255,255,0.7);">
+            <i class="fa-regular fa-calendar-check" style="font-size: 3rem; color: #94a3b8; margin-bottom: 15px; display: block;"></i>
+            No appointments found.
+        </p>
+
+        <div class="appointments-grid">
+            <article class="premium-appt-card" th:each="a : ${appointments}">
+                <div class="premium-appt-header">
+                    <div class="patient-profile">
+                        <img th:src="@{'https://ui-avatars.com/api/?name=' + ${a.patient.name} + '&background=random&color=fff'}" class="patient-avatar">
+                        <div>
+                            <h3 th:text="${a.patient.name}" style="margin: 0; color: #1e293b; font-size: 1.1rem;"></h3>
+                            <span style="font-size: 0.8rem; color: #94a3b8;">Patient ID: #<span th:text="${a.patient.id}"></span></span>
+                        </div>
+                    </div>
+                    <span class="status-badge" th:classappend="${a.status.name().toLowerCase()}" th:text="${a.status}"></span>
+                </div>
+                
+                <div class="premium-appt-body">
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fa-regular fa-calendar-check"></i></div>
+                        <div class="info-text">
+                            <small>Date & Time</small>
+                            <span th:text="${a.slot.slotDate + ' ' + a.slot.startTime}"></span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fa-solid fa-stethoscope"></i></div>
+                        <div class="info-text">
+                            <small>Reason</small>
+                            <span th:text="${a.reason}"></span>
+                        </div>
+                    </div>
+
+                    <!-- AI Summary Box -->
+                    <div class="ai-insight-box" th:if="${aiSummary != null && summaryApptId == a.id}">
+                        <div class="ai-insight-header">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Insight Summary
+                        </div>
+                        <p th:text="${aiSummary}"></p>
+                    </div>
+                </div>
+
+                <div class="premium-appt-footer">
+                    <div class="footer-actions left-actions">
+                        <!-- AI Summary Button -->
+                        <form th:action="@{/doctor/appointments/{id}/ai-summary(id=${a.id})}" method="post">
+                            <button type="submit" class="ai-button"><i class="fa-solid fa-robot"></i> Ask AI</button>
+                        </form>
+                        
+                        <!-- Download PDF Button -->
+                        <a th:if="${a.status.name() == 'COMPLETED'}" th:href="@{/doctor/appointments/{id}/prescription/pdf(id=${a.id})}" target="_blank" class="download-button"><i class="fa-regular fa-file-pdf"></i> PDF</a>
+                    </div>
+
+                    <div class="footer-actions right-actions" style="flex: 1; justify-content: flex-end;">
+                        <!-- Pending Actions -->
+                        <div th:if="${a.status.name() == 'PENDING'}" style="display: flex; gap: 10px;">
+                            <form th:action="@{/doctor/appointments/{id}/reject(id=${a.id})}" method="post">
+                                <button class="action-btn reject-btn">Reject</button>
+                            </form>
+                            <form th:action="@{/doctor/appointments/{id}/approve(id=${a.id})}" method="post">
+                                <button class="action-btn approve-btn">Approve</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Complete Actions -->
+                        <details class="prescribe-details" th:if="${a.status.name() == 'APPROVED'}" style="width: 100%;">
+                            <summary>Complete & Prescribe</summary>
+                            <div style="margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                <form th:action="@{/doctor/appointments/{id}/complete(id=${a.id})}" method="post" class="prescribe-form" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <input type="text" name="diagnosis" placeholder="Diagnosis (e.g. Viral Fever)" required class="pill-input" style="background: white;">
+                                    <textarea name="medicines" placeholder="Medicines (e.g. Paracetamol 500mg - 1-0-1)" required rows="3" class="modern-textarea" style="background: white; border-radius: 12px;"></textarea>
+                                    <textarea name="notes" placeholder="Additional Notes" rows="2" class="modern-textarea" style="background: white; border-radius: 12px;"></textarea>
+                                    <label class="ai-checkbox-label" style="background: rgba(139, 92, 246, 0.05); border-radius: 8px; padding: 8px 12px; display: inline-flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="useAi" value="true"> 
+                                        <span style="color: #6d28d9; font-weight: 600; font-size: 0.85rem;">✨ Format professionally with AI</span>
+                                    </label>
+                                    <button class="button success pill-btn" style="justify-content: center;">Save Prescription</button>
+                                </form>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Users')}"></head>
+<body class="cyber-page">
+
+    <main class="container" style="max-width: 1200px;">
+        <div class="cyber-panel">
+            <!-- Inner Header / Nav -->
+            <div class="cyber-header">
+                <div class="cyber-brand">
+                    <img th:src="@{/images/medislot-logo.png}" alt="MediSlot Logo" style="height: 100px; mix-blend-mode: screen; object-fit: contain;">
+                </div>
+                <div class="cyber-nav">
+                    <a th:href="@{/admin/doctors}" class="cyber-nav-btn">Doctors</a>
+                    <a th:href="@{/admin/users}" class="cyber-nav-btn active">Users</a>
+                    <a th:href="@{/admin/specializations}" class="cyber-nav-btn">Specializations</a>
+                    <a th:href="@{/admin/appointments}" class="cyber-nav-btn">Appointments</a>
+                    <a th:href="@{/logout}" class="cyber-nav-btn">Logout</a>
+                </div>
+            </div>
+
+            <div class="welcome-header">
+                <h1>Users Management</h1>
+            </div>
+
+            <!-- Table Container -->
+            <div class="cyber-table-container">
+                <!-- Header Row -->
+                <div class="cyber-table-header">
+                    <div style="flex: 2; padding-left: 70px;">NAME</div>
+                    <div style="flex: 1.5;">PHONE</div>
+                    <div style="flex: 1;">ROLE</div>
+                    <div style="flex: 1;">STATUS</div>
+                    <div style="flex: 1; text-align: right;">ACTION</div>
+                </div>
+
+                <!-- Data Rows -->
+                <div class="cyber-row" th:each="u : ${users}">
+                    <div style="flex: 2;" class="name-col-flex">
+                        <div class="cyber-avatar">
+                            <img th:src="@{'https://ui-avatars.com/api/?name=' + ${u.name} + '&background=random&color=fff'}" alt="Avatar">
+                        </div>
+                        <div class="name-details" style="display: flex; flex-direction: column; justify-content: center; margin-left: 15px;">
+                            <strong th:text="${u.name}" style="color: #ffffff; font-size: 1.05rem; letter-spacing: 0.5px;"></strong>
+                            <span class="muted-cyber" th:text="${u.email}" style="color: #94a3b8; font-size: 0.85rem; margin-top: 4px;"></span>
+                        </div>
+                    </div>
+                    <div style="flex: 1.5;" th:text="${u.phone}"></div>
+                    <div style="flex: 1;">
+                        <span class="cyber-badge" th:classappend="${u.role.name().toLowerCase()}" th:text="${u.role}"></span>
+                    </div>
+                    <div style="flex: 1;">
+                        <span th:if="${u.enabled}" class="cyber-badge approved">Active</span>
+                        <span th:unless="${u.enabled}" class="cyber-badge suspended">Disabled</span>
+                    </div>
+                    <div style="flex: 1; display: flex; justify-content: flex-end;">
+                        <form th:action="@{/admin/users/{id}/toggle(id=${u.id})}" method="post" 
+                              class="toggle-user-form"
+                              th:data-name="${u.name}"
+                              th:data-action="${u.enabled ? 'disable' : 'enable'}">
+                            <button th:if="${u.enabled}" class="cyber-btn cyber-btn-red" type="button" onclick="triggerConfirm(this)">Disable</button>
+                            <button th:unless="${u.enabled}" class="cyber-btn cyber-btn-green" type="button" onclick="triggerConfirm(this)">Enable</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Action Modal -->
+    <div id="cyberActionModal" class="cyber-modal-overlay">
+        <div class="cyber-modal-content">
+            <i class="fa-solid fa-triangle-exclamation modal-icon"></i>
+            <h2 id="modalTitle">Confirm Action</h2>
+            <p id="modalMessage">Are you sure you want to perform this action?</p>
+            <div class="modal-actions">
+                <button type="button" class="cyber-btn" onclick="closeModal()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">Cancel</button>
+                <button type="button" class="cyber-btn cyber-btn-red" id="modalConfirmBtn">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentForm = null;
+
+        function triggerConfirm(btn) {
+            const form = btn.closest('.toggle-user-form');
+            const name = form.getAttribute('data-name');
+            const action = form.getAttribute('data-action');
+            
+            currentForm = form;
+            
+            document.getElementById('modalTitle').innerText = action === 'disable' ? 'Disable User' : 'Enable User';
+            document.getElementById('modalMessage').innerHTML = `Are you sure you want to ${action} <strong>${name}</strong>?`;
+            
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const icon = document.querySelector('.modal-icon');
+            
+            if(action === 'disable') {
+                confirmBtn.className = 'cyber-btn cyber-btn-red';
+                confirmBtn.innerText = 'Yes, Disable';
+                icon.className = 'fa-solid fa-triangle-exclamation modal-icon';
+                icon.style.color = '#ef4444';
+            } else {
+                confirmBtn.className = 'cyber-btn cyber-btn-green';
+                confirmBtn.innerText = 'Yes, Enable';
+                icon.className = 'fa-solid fa-shield-check modal-icon';
+                icon.style.color = '#10b981';
+            }
+
+            document.getElementById('cyberActionModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('cyberActionModal').classList.remove('active');
+            currentForm = null;
+        }
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+            if(currentForm) {
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+                currentForm.submit();
+            }
+        });
+    </script>
+</body>
+</html>

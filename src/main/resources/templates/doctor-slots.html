@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Doctor Slots')}"></head>
+<body>
+    <nav th:replace="~{fragments :: nav('Doctor Panel')}"></nav>
+    
+    <main class="container" style="max-width: 1000px; padding-top: 30px;">
+        <!-- Header Section -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div>
+                <h1 style="color: #1e3a8a; margin: 0 0 5px 0;">Manage Slots</h1>
+                <p class="tagline muted" style="margin: 0;">Your weekly slots are automatically generated upon approval.</p>
+            </div>
+            <button class="button primary pill-btn" onclick="toggleAddSlotsDrawer()"><i class="fa-solid fa-plus"></i> Add New Slots</button>
+        </div>
+        
+        <!-- Alerts -->
+        <div class="alert danger" th:if="${error}" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${error}"></span>
+        </div>
+        <div class="alert success" th:if="${success}" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-check"></i> <span th:text="${success}"></span>
+        </div>
+        <div class="alert success" th:if="${param.created}" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-check"></i> Slots created successfully.
+        </div>
+
+        <section class="slots-main">
+            <div th:if="${#maps.isEmpty(groupedSlots)}" class="modern-card" style="text-align: center; padding: 40px; border: 1px dashed #cbd5e1; background: rgba(255,255,255,0.7);">
+                <i class="fa-regular fa-calendar-xmark" style="font-size: 3rem; color: #94a3b8; margin-bottom: 15px;"></i>
+                <h3 style="color: #475569;">No slots generated yet</h3>
+                <p class="muted">Click "Add New Slots" to generate your availability.</p>
+            </div>
+            
+            <!-- Day Card Wrapper -->
+            <div class="modern-card day-group-card" th:each="entry : ${groupedSlots}" style="margin-bottom: 25px; padding: 25px; border-radius: 16px;">
+                <h3 class="day-stripe-header" th:text="${#temporals.format(entry.key, 'EEEE, MMM dd, yyyy')}" style="margin-top: 0;"></h3>
+                
+                <div class="slots-pill-grid">
+                    <article class="slot-pill-card" th:each="s : ${entry.value}" th:classappend="${s.status.name() == 'AVAILABLE' ? 'available' : 'booked'}">
+                        <div class="slot-time">
+                            <i th:if="${s.status.name() == 'AVAILABLE'}" class="fa-solid fa-circle slot-dot"></i>
+                            <i th:if="${s.status.name() == 'BOOKED'}" class="fa-solid fa-lock slot-lock"></i>
+                            <span th:text="${#temporals.format(s.startTime, 'hh:mm a')}"></span>
+                        </div>
+                        
+                        <form th:if="${s.status.name() == 'AVAILABLE'}" th:action="@{/doctor/slots/{id}/delete(id=${s.id})}" method="post" style="margin:0; padding:0; display: flex; align-items: center;">
+                            <button type="submit" class="pill-delete-btn" onclick="return confirm('Delete this slot?');"><i class="fa-regular fa-trash-can"></i></button>
+                        </form>
+                        <span th:if="${s.status.name() == 'BOOKED'}" style="font-size: 0.8rem; color: #94a3b8; font-weight: normal; margin-left: 10px;">Booked</span>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Slide-in Drawer -->
+    <div id="addSlotsDrawer" class="drawer-overlay">
+        <div class="drawer-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                <h3 style="margin: 0; color: white;">Generate Slots</h3>
+                <i class="fa-solid fa-xmark drawer-close" onclick="toggleAddSlotsDrawer()"></i>
+            </div>
+            <form th:action="@{/doctor/slots}" method="post" class="prescribe-form dark-form">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Date</label>
+                    <input type="date" name="date" th:min="${today}" required class="pill-input dark-input">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" name="start" required class="pill-input dark-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" name="end" required class="pill-input dark-input">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label>Duration (Minutes)</label>
+                    <input type="number" name="duration" value="30" min="10" max="120" required class="pill-input dark-input">
+                </div>
+                <button type="submit" class="button success pill-btn" style="width: 100%; justify-content: center; padding: 15px; background: #0ea5e9; border: none; color: white; font-weight: bold;">Generate Availability</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleAddSlotsDrawer() {
+            const drawer = document.getElementById('addSlotsDrawer');
+            if (drawer.classList.contains('active')) {
+                drawer.classList.remove('active');
+            } else {
+                drawer.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

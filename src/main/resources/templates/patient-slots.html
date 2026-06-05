@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Available Slots')}"></head>
+<body class="slots-page-bg">
+<nav th:replace="~{fragments :: nav('MediSlot Patient')}"></nav>
+
+<main class="container" style="max-width: 900px; padding-top: 40px; position: relative;">
+    <!-- Page Header (Outside Card) -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px;">
+        <div>
+            <h1 style="color: #0f172a; margin: 0 0 8px 0; font-weight: 700;">Select a Time Slot</h1>
+            <p style="color: #475569; margin: 0;">Please select an available time that works best for you.</p>
+        </div>
+        <a class="button ghost" th:href="@{/patient/doctors}" style="background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 20px; color: #0f172a;"><i class="fa-solid fa-arrow-left"></i> Go Back</a>
+    </div>
+
+    <!-- Main Glass Card -->
+    <div class="slots-glass-card">
+        <!-- Avatar Overlap -->
+        <div class="overlap-avatar-wrapper" th:if="${doctor != null}">
+            <div class="overlap-avatar">
+                <img th:if="${doctor.user.profileImageUrl != null}" th:src="${doctor.user.profileImageUrl}" alt="Doctor">
+                <i th:unless="${doctor.user.profileImageUrl != null}" class="fa-solid fa-user-doctor"></i>
+                <div class="overlap-verified"><i class="fa-solid fa-check"></i></div>
+            </div>
+        </div>
+        
+        <div class="overlap-avatar-wrapper" th:unless="${doctor != null}">
+            <div class="overlap-avatar">
+                <img src="/images/doctor_illustration.png" alt="Doctor" style="opacity: 0.5;">
+                <div class="overlap-verified"><i class="fa-solid fa-check"></i></div>
+            </div>
+        </div>
+
+        <!-- Date Tabs -->
+        <div class="mockup-date-tabs">
+            <i class="fa-solid fa-chevron-left mockup-chevron"></i>
+            <div class="mockup-tabs-container">
+                <button type="button" th:each="entry, stat : ${groupedSlots}" 
+                        class="mockup-tab-btn" 
+                        th:classappend="${stat.first} ? 'active' : ''"
+                        th:text="${stat.first ? 'Today' : #temporals.format(entry.key, 'MMM dd')}"
+                        th:onclick="'switchMockupTab(this, \'' + ${stat.index} + '\')'">
+                </button>
+            </div>
+            <i class="fa-solid fa-chevron-right mockup-chevron"></i>
+        </div>
+
+        <!-- Slots Container -->
+        <div class="mockup-slots-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-weight: 600; color: #0f172a; margin-bottom: 20px; font-size: 1.1rem;">
+                <div>Morning</div>
+                <div>Afternoon</div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#maps.isEmpty(groupedSlots)}" style="text-align: center; padding: 20px; color: #475569;">
+                <p>No available slots for this doctor.</p>
+            </div>
+
+            <div th:each="entry, stat : ${groupedSlots}" 
+                 class="mockup-slots-grid-group" 
+                 th:id="'slots-group-' + ${stat.index}"
+                 th:style="${stat.first} ? 'display: grid;' : 'display: none;'">
+                
+                <button type="button" th:each="s : ${entry.value}" 
+                        class="mockup-slot-btn" 
+                        th:classappend="${s.status.name() != 'AVAILABLE'} ? 'booked' : 'available'"
+                        th:data-id="${s.id}"
+                        th:disabled="${s.status.name() != 'AVAILABLE'}"
+                        onclick="selectMockupSlot(this)">
+                    <span th:text="${#temporals.format(s.startTime, 'HH:mm')}"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Booking Form Area -->
+        <div id="bookingPanel" style="display: none; margin-top: 30px; text-align: center; animation: fadeIn 0.4s ease-out;">
+            <form th:action="@{/patient/book}" method="post" id="bookingForm" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
+                <input type="hidden" name="slotId" id="selectedSlotId">
+                <input name="reason" placeholder="Reason for Visit..." required class="pill-input" style="background: rgba(255,255,255,0.7); border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <button class="mockup-confirm-btn" id="submitBtn">Confirm Booking</button>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<script>
+function switchMockupTab(btn, index) {
+    // 1. Update Tabs
+    document.querySelectorAll('.mockup-tab-btn').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    // 2. Hide all slots, then show target slots
+    document.querySelectorAll('.mockup-slots-grid-group').forEach(group => {
+        group.style.display = 'none';
+        group.classList.remove('animate-slide-up');
+    });
+
+    const targetGroup = document.getElementById('slots-group-' + index);
+    if (targetGroup) {
+        targetGroup.style.display = 'grid';
+        // Trigger reflow to restart animation
+        void targetGroup.offsetWidth;
+        targetGroup.classList.add('animate-slide-up');
+    }
+}
+
+function selectMockupSlot(button) {
+    if(button.disabled) return;
+    
+    // Deselect all
+    document.querySelectorAll('.mockup-slot-btn').forEach(btn => btn.classList.remove('selected'));
+    
+    // Select clicked
+    button.classList.add('selected');
+    
+    // Populate form data
+    document.getElementById('selectedSlotId').value = button.getAttribute('data-id');
+    
+    // Show panel with animation
+    const panel = document.getElementById('bookingPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+    }
+}
+
+document.getElementById('bookingForm')?.addEventListener('submit', function(e) {
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = 'Confirming... <i class="fa-solid fa-spinner fa-spin"></i>';
+    btn.style.opacity = '0.8';
+});
+</script>
+</body>
+</html>

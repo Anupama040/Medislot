@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title + ' | MediSlot'}">MediSlot</title>
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/style.css(v=4)}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script th:src="@{/js/dashboard-animations.js(v=1)}" defer></script>
+</head>
+<body>
+<nav class="topbar" th:fragment="nav(title)">
+    <a class="brand" th:href="@{/}" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <img th:src="@{/images/medislot-logo.png}" alt="MediSlot Logo" style="height: 35px; object-fit: contain; filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4));">
+        <span th:text="${title}">MediSlot</span>
+    </a>
+    <div class="nav-links">
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'ADMIN'}" th:href="@{/admin/doctors}">Doctors</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'ADMIN'}" th:href="@{/admin/users}">Users</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'ADMIN'}" th:href="@{/admin/specializations}">Specializations</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'ADMIN'}" th:href="@{/admin/appointments}">Appointments</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'DOCTOR'}" th:href="@{/doctor/slots}">Slots</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'DOCTOR'}" th:href="@{/doctor/appointments}">Appointments</a>
+        <a class="button small ghost" th:if="${session.role != null and session.role.name() == 'PATIENT'}" th:href="@{/patient/doctors}">Find Doctors</a>
+    </div>
+    
+    <div th:if="${session.role != null}" class="user-profile-dropdown">
+        <div class="nav-avatar">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-header">
+                <strong th:text="${session.role.name()}">User</strong>
+                <span style="font-size: 0.8rem; color: #94a3b8; display: block;">Active Session</span>
+            </div>
+            <a class="dropdown-item logout-action" th:href="@{/logout}">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

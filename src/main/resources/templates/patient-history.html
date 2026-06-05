@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Medical History')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav('MediSlot Patient')}"></nav>
+<main class="container">
+    <div class="panel-title">
+        <h1>My Medical History</h1>
+        <a class="button" th:href="@{/patient/dashboard}">Back to Dashboard</a>
+    </div>
+
+    <section class="panel mt" th:if="${#lists.isEmpty(prescriptions)}">
+        <p class="muted">You have no medical history yet.</p>
+    </section>
+
+    <section th:each="p : ${prescriptions}" class="panel mt" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 th:text="${'Dr. ' + p.appointment.doctor.name}"></h2>
+                <p class="muted" th:text="${'Consultation Date: ' + #temporals.format(p.createdAt, 'dd MMM yyyy, HH:mm')}"></p>
+            </div>
+            <a th:href="@{/patient/history/{id}/pdf(id=${p.id})}" target="_blank" class="button primary" style="padding: 8px 15px; font-size: 0.9em;">📄 Download PDF</a>
+        </div>
+        <hr>
+        <div style="margin-top: 15px;">
+            <strong>Diagnosis:</strong>
+            <p th:text="${p.diagnosis}"></p>
+        </div>
+        <div style="margin-top: 15px;">
+            <strong>Medicines:</strong>
+            <p th:text="${p.medicines}" style="white-space: pre-wrap;"></p>
+        </div>
+        <div style="margin-top: 15px;" th:if="${p.notes != null && !p.notes.isBlank()}">
+            <strong>Notes:</strong>
+            <p th:text="${p.notes}" style="white-space: pre-wrap;"></p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

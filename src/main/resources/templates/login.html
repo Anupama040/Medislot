@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | MediSlot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+
+<body class="auth-page-blue">
+    <!-- Decorative background elements (subtle) -->
+    <div class="bg-shape shape-1" style="background: rgba(56, 189, 248, 0.1); width: 40vw; height: 40vw; filter: blur(100px);"></div>
+    <div class="bg-shape shape-2" style="background: rgba(59, 130, 246, 0.1); width: 30vw; height: 30vw; filter: blur(80px);"></div>
+    
+    <div class="auth-container split-layout-exact">
+        
+        <!-- Left Illustration Card -->
+        <div class="auth-illustration">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px; z-index: 0;"></div>
+            <div class="illustration-pulse-bg"></div>
+            <img th:src="@{/images/doctor_illustration.png(v=2)}" alt="Doctor Illustration" class="main-illustration">
+        </div>
+
+        <!-- Right Login Area -->
+        <div class="auth-form-side">
+            
+            <!-- Header Area (Dark Blue) -->
+            <div class="auth-header-exact">
+                <img th:src="@{/images/medislot-logo.png}" alt="MediSlot Logo" class="auth-logo-img">
+                <p class="brand-tagline">Connecting Care, Simplifying Access</p>
+            </div>
+
+            <!-- White Form Card with Glassmorphism -->
+            <div class="auth-white-card">
+                
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+                    <button type="button" id="doctorAccessBtn" style="background: none; border: none; cursor: pointer; color: #94a3b8; transition: color 0.3s;" title="Switch to Doctor Access">
+                        <i class="fa-solid fa-user-doctor" style="font-size: 1.1rem;"></i>
+                    </button>
+                </div>
+
+                <div id="doctorAccessLabel" style="display: none; text-align: center; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 8px; padding: 6px; margin-bottom: 10px; font-weight: 600; font-size: 0.8rem;">
+                    <i class="fa-solid fa-stethoscope"></i> Doctor Access Mode Enabled
+                </div>
+
+                <div class="heartbeat-container" style="position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; padding: 5px 0;">
+                    <div style="position: absolute; width: 80%; height: 2px; background: #e2e8f0; z-index: 1;"></div>
+                    <div class="heartbeat-icon" style="background: #3b82f6; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); position: relative; z-index: 2;">
+                        <i class="fa-solid fa-heart-pulse" style="font-size: 1rem;"></i>
+                    </div>
+                </div>
+
+                <!-- Toast Notifications -->
+                <div id="toast-container" class="toast-inline" style="width: 100%; margin-bottom: 10px;">
+                    <div class="toast success" th:if="${success}" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check"></i> <span th:text="${success}"></span>
+                    </div>
+                    <div class="toast success" th:if="${param.logout}" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check"></i> Logged out successfully.
+                    </div>
+                    <div class="toast danger" th:if="${param.expired}" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please login to continue.
+                    </div>
+                    <div class="toast danger" th:if="${error}" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${error}"></span>
+                    </div>
+                </div>
+
+                <style>
+                    .input-modern {
+                        position: relative;
+                        margin-bottom: 12px;
+                    }
+                    .input-modern .icon-left {
+                        position: absolute;
+                        left: 15px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: #94a3b8;
+                        font-size: 15px;
+                        transition: color 0.3s;
+                        z-index: 2;
+                    }
+                    .input-modern .pwd-toggle {
+                        position: absolute;
+                        right: 15px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: #94a3b8;
+                        cursor: pointer;
+                        z-index: 2;
+                    }
+                    .input-modern input {
+                        width: 100%;
+                        background: #f1f5f9;
+                        border: 2px solid transparent;
+                        border-radius: 10px;
+                        padding: 10px 40px 10px 45px;
+                        font-size: 0.9rem;
+                        color: #1e293b;
+                        outline: none;
+                        transition: all 0.3s;
+                        box-sizing: border-box;
+                    }
+                    .input-modern input:focus {
+                        border-color: #3b82f6;
+                        background: white;
+                    }
+                    .input-modern input:focus ~ .icon-left {
+                        color: #3b82f6;
+                    }
+                </style>
+
+                <form th:action="@{/login}" method="post" class="auth-form" id="loginForm" style="width: 100%;">
+                    <input type="hidden" name="userRole" id="userRole" value="patient">
+                    
+                    <div class="input-modern">
+                        <input type="email" name="email" id="emailInput" placeholder="Enter your email" required>
+                        <span class="icon-left"><i class="fa-solid fa-envelope"></i></span>
+                    </div>
+
+                    <div class="input-modern">
+                        <input type="password" name="password" id="passwordInput" placeholder="••••••••" required>
+                        <span class="icon-left"><i class="fa-solid fa-lock"></i></span>
+                        <span class="pwd-toggle" id="togglePassword"><i class="fa-regular fa-eye"></i></span>
+                    </div>
+
+                    <div class="form-actions-clean" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <label class="remember-me-clean" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" name="remember-me" style="accent-color: #3b82f6;">
+                            <span style="color: #64748b; font-size: 0.8rem;">Remember Me</span>
+                        </label>
+                        <div style="display: flex; gap: 10px;">
+                            <a th:href="@{/help}" class="forgot-link" style="font-size: 0.8rem; color: #94a3b8; text-decoration: none;" title="Contact Support for login issues">
+                                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Need Help?
+                            </a>
+                            <a th:href="@{/forgot-password}" class="forgot-link" style="font-size: 0.8rem; color: #3b82f6; text-decoration: none; font-weight: 500;">Forgot Password?</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn-glow" id="loginSubmitBtn" style="margin-bottom: 15px; padding: 10px; font-size: 0.95rem; position: relative; overflow: hidden;">
+                        <span id="loginBtnText">Login</span>
+                        <i class="fa-solid fa-circle-notch fa-spin" id="loginBtnSpinner" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
+                    </button>
+                </form>
+
+                <div class="social-divider" style="margin: 0 0 15px 0; position: relative; text-align: center;">
+                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e2e8f0; z-index: 1;"></div>
+                    <span style="background: white; color: #94a3b8; padding: 0 10px; position: relative; z-index: 2; font-size: 0.8rem;">Or continue with</span>
+                </div>
+
+                <div class="social-login-pill-group" style="display: flex; gap: 12px; justify-content: center;">
+                    <button type="button" class="social-btn-pill" style="flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; color: #475569; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-brands fa-google" style="color: #ea4335;"></i> Google
+                    </button>
+                    <button type="button" class="social-btn-pill" style="flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; color: #475569; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-brands fa-microsoft" style="color: #00a4ef;"></i> Microsoft
+                    </button>
+                </div>
+
+                <div class="auth-links-bottom" style="text-align: center; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                    <a id="dynamicSignupLink" th:href="@{/register/patient}" style="color: #3b82f6; font-weight: 600; text-decoration: none; font-size: 0.85rem;">Sign up as Patient</a> 
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/auth-animations.js(v=3)}"></script>
+</body>
+
+</html>

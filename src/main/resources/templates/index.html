@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSlot</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="hero">
+    <section class="hero-content">
+        <p class="eyebrow">Verified Doctor Appointment Platform</p>
+        <h1>MediSlot</h1>
+        <p>Patients book verified doctors. Doctors work after admin approval. Admin controls trust, slots, and appointment workflow.</p>
+        <div class="hero-actions">
+            <a class="button primary" th:href="@{/login}">Login</a>
+            <a class="button" th:href="@{/register/patient}">Patient Signup</a>
+            <a class="button" th:href="@{/register/doctor}">Doctor Apply</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

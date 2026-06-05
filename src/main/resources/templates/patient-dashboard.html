@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Patient Dashboard')}"></head>
+<body class="dashboard-page">
+
+    <!-- Decorative background patterns -->
+    <div class="bg-pattern-icons dash-pattern">
+        <i class="fa-solid fa-heart" style="top: 10%; left: 5%;"></i>
+        <i class="fa-solid fa-stethoscope" style="top: 20%; right: 10%;"></i>
+        <i class="fa-solid fa-notes-medical" style="bottom: 30%; left: 8%;"></i>
+        <i class="fa-solid fa-pills" style="bottom: 10%; right: 15%;"></i>
+        <i class="fa-solid fa-kit-medical" style="top: 50%; left: 90%;"></i>
+    </div>
+
+    <nav th:replace="~{fragments :: nav('MediSlot')}"></nav>
+
+    <main class="container">
+        <div class="welcome-header">
+            <h1>Welcome, <span th:text="${name}"></span></h1>
+        </div>
+
+        <div class="alert success" th:if="${param.booked}"><i class="fa-solid fa-circle-check"></i> Appointment requested. Doctor approval pending.</div>
+        <div class="alert success" th:if="${param.cancelled}"><i class="fa-solid fa-circle-check"></i> Appointment cancelled.</div>
+        <div class="alert success" th:if="${param.reviewed}"><i class="fa-solid fa-circle-check"></i> Review submitted.</div>
+
+        <section class="panel modern-card">
+            <div class="panel-title">
+                <h2>My Appointments</h2>
+                <div class="header-actions">
+                    <a class="button pill outline" th:href="@{/patient/history}">Medical History</a>
+                    <a class="button pill outline" th:href="@{/patient/doctors}">Book New</a>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Slot</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${appointments}">
+                            <td th:text="${a.doctor.name}"></td>
+                            <td th:text="${a.slot.slotDate + ' ' + a.slot.startTime}"></td>
+                            <td th:text="${a.reason}"></td>
+                            <td>
+                                <span class="status badge" th:classappend="${a.status.name().toLowerCase()}" th:text="${a.status}"></span>
+                            </td>
+                            <td>
+                                <form th:if="${a.status.name() == 'PENDING' || a.status.name() == 'APPROVED'}" th:action="@{/patient/appointments/{id}/cancel(id=${a.id})}" method="post">
+                                    <button class="button danger small pill-btn">Cancel</button>
+                                </form>
+                                <form th:if="${a.status.name() == 'COMPLETED'}" th:action="@{/patient/appointments/{id}/review(id=${a.id})}" method="post" class="inline-actions">
+                                    <input type="number" name="rating" min="1" max="5" placeholder="1-5" required class="small-input">
+                                    <input name="comment" placeholder="Comment" class="small-input">
+                                    <button class="button primary small pill-btn">Review</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel modern-card notification-card mt">
+            <div class="notification-content">
+                <h2>Notifications</h2>
+                <p th:if="${#lists.isEmpty(notifications)}" class="muted">No notifications.</p>
+                <div class="notice-modern" th:each="n : ${notifications}">
+                    <div class="notice-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="notice-text">
+                        <strong th:text="${n.title}"></strong>
+                        <p th:text="${n.message}"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="notification-illustration">
+                <div class="illustration-bg"></div>
+                <img th:src="@{/images/doctor_notification.png}" alt="Doctor">
+            </div>
+        </section>
+    </main>
+</body>
+</html>
