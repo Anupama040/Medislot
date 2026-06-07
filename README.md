@@ -1,4 +1,7 @@
-# MediSlot - Smart Doctor Appointment Booking System
+<div align="center">
+  <img src="src/main/resources/static/images/medislot-logo.png" alt="MediSlot Logo" width="150" style="margin-bottom: 20px;"/>
+  <h1>MediSlot - Smart Doctor Appointment Booking System</h1>
+</div>
 
 MediSlot is a Java Spring Boot web application for booking appointments with verified doctors. It is designed as a final-year engineering project with separate workflows for patients, doctors, and administrators.
 
