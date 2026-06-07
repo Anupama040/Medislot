@@ -82,7 +82,7 @@ public class GeminiService {
         } catch (Exception e) {
             System.err.println("Gemini API Error: " + e.getMessage());
             e.printStackTrace();
-            return "Unable to process via AI at this moment.";
+            return "Unable to process via AI. Error: " + e.getMessage();
         }
     }
 }
