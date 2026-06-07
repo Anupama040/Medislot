@@ -29,7 +29,7 @@ public class PdfService {
         document.add(title);
         document.add(new Paragraph("\n"));
 
-        document.add(new Paragraph("Doctor: Dr. " + prescription.getAppointment().getDoctor().getName(), subtitleFont));
+        document.add(new Paragraph("Doctor: " + prescription.getAppointment().getDoctor().getName(), subtitleFont));
         document.add(new Paragraph("Patient: " + prescription.getAppointment().getPatient().getName(), subtitleFont));
         document.add(new Paragraph("Date: " + prescription.getCreatedAt().toLocalDate(), normalFont));
         document.add(new Paragraph("\n"));
@@ -51,7 +51,8 @@ public class PdfService {
         }
 
         document.add(new Paragraph("-------------------------------------------------------------------", normalFont));
-        Paragraph footer = new Paragraph("This is an electronically generated prescription via MediSlot AI.", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, Color.GRAY));
+        Paragraph footer = new Paragraph("This is an electronically generated prescription via MediSlot AI.",
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, Color.GRAY));
         footer.setAlignment(Paragraph.ALIGN_CENTER);
         document.add(footer);
 

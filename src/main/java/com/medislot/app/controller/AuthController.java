@@ -53,11 +53,22 @@ public class AuthController {
     public String login(
             @RequestParam String email,
             @RequestParam String password,
+            @RequestParam(defaultValue = "patient") String userRole,
             HttpServletRequest request,
             Model model
     ) {
         return authService.login(email, password)
-                .map(user -> loginUser(user, request))
+                .map(user -> {
+                    if (user.getRole() == Role.DOCTOR && !"doctor".equalsIgnoreCase(userRole)) {
+                        model.addAttribute("error", "Doctors must use the Doctor Access login. Please click the Doctor icon above.");
+                        return "login";
+                    }
+                    if (user.getRole() == Role.PATIENT && "doctor".equalsIgnoreCase(userRole)) {
+                        model.addAttribute("error", "Patients cannot use Doctor Access login.");
+                        return "login";
+                    }
+                    return loginUser(user, request);
+                })
                 .orElseGet(() -> {
                     model.addAttribute("error", "Invalid credentials or account not approved/enabled.");
                     return "login";
