@@ -1,3 +1,4 @@
+
 <div align="center">
   <img src="src/main/resources/static/images/medislot-logo.png" alt="MediSlot Logo" width="160" style="margin-bottom: 15px;"/>
   <h1 style="margin: 0;">MediSlot</h1>
@@ -10,26 +11,26 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 **MediSlot** is an enterprise-grade, comprehensive healthcare appointment scheduling application built with Java Spring Boot. Designed with a deep focus on security and trust, MediSlot ensures that patients only connect with fully verified medical professionals. 
 
 This project was engineered as a robust academic submission, featuring role-based access control, strict administrative workflows, and a polished user experience.
 
-## ✨ Key Features
+##  Key Features
 
-### 🛡️ Secure Doctor Verification
+###  Secure Doctor Verification
 MediSlot eliminates the risk of fraudulent medical accounts. Every doctor who registers must undergo a strict administrative review process. Their accounts remain completely locked until an administrator manually verifies their credentials and approves their profile.
 
-### 👥 Multi-Role Workflows
+###  Multi-Role Workflows
 - **Patients**: Seamlessly search for doctors by specialization or city, view real-time availability, manage bookings, and leave post-appointment reviews.
 - **Doctors**: Manage professional profiles, define custom availability schedules, accept/decline appointment requests, and track patient interactions.
 - **Administrators**: The central authority. Admins verify doctor applications, manage user accounts, oversee global system statistics, and handle medical specializations.
 
-### 📅 Advanced Scheduling Engine
+###  Advanced Scheduling Engine
 The platform features an intelligent slot management system that automatically prevents double-booking and dynamically updates availability in real-time based on approvals and cancellations.
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 * **Core Framework**: Java 17, Spring Boot 3.x
 * **Frontend Architecture**: Thymeleaf, HTML5, CSS3
@@ -38,7 +39,7 @@ The platform features an intelligent slot management system that automatically p
 * **Security & Auth**: Session-based authentication with BCrypt hashing algorithms
 * **Document Generation**: OpenPDF integration
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 * Java Development Kit (JDK) 17+
@@ -70,20 +71,20 @@ The platform features an intelligent slot management system that automatically p
 4. **Access the Portal (Local)**
    Open your web browser and navigate to: `http://localhost:8080`
 
-### 🌍 Live Production Environment
+###  Live Production Environment
 
 Don't want to run it locally? MediSlot is currently deployed and live on Render! You can access the fully functional platform directly without any installation:
 
 👉 **[Live Application: https://medislot-app.onrender.com](https://medislot-app.onrender.com)**
 
-## 👑 Administrative Access
+##  Administrative Access
 
 On the very first launch, the system automatically provisions a super-admin account to help you get started immediately:
 
 > **Email**: `admin@medislot.com`  
 > **Password**: `admin123`
 
-## 🏗️ System Architecture & Status Lifecycles
+##  System Architecture & Status Lifecycles
 
 ### Doctor Verification Lifecycle
 `Pending Application` ➔ `Admin Review` ➔ `Approved` (Login Enabled) or `Rejected/Suspended`
