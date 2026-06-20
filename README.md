@@ -2,6 +2,10 @@
   <img src="src/main/resources/static/images/medislot-logo.png" alt="MediSlot Logo" width="160" style="margin-bottom: 15px;"/>
   <h1 style="margin: 0;">MediSlot</h1>
   <p><b>Intelligent Healthcare Scheduling & Verification Platform</b></p>
+  
+  [![Website Live](https://img.shields.io/badge/Live_Website-medislot--app.onrender.com-success?style=for-the-badge&logo=render)](https://medislot-app.onrender.com)
+  <br>
+  <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FAnupama040%2FMediSlot&countColor=%23263759&style=flat" alt="Visitors"/>
 </div>
 
 ---
@@ -63,8 +67,14 @@ The platform features an intelligent slot management system that automatically p
    ```
    Or simply run the `MediSlotApplication.java` file from your preferred Java IDE.
 
-4. **Access the Portal**
+4. **Access the Portal (Local)**
    Open your web browser and navigate to: `http://localhost:8080`
+
+### 🌍 Live Production Environment
+
+Don't want to run it locally? MediSlot is currently deployed and live on Render! You can access the fully functional platform directly without any installation:
+
+👉 **[Live Application: https://medislot-app.onrender.com](https://medislot-app.onrender.com)**
 
 ## 👑 Administrative Access
 
